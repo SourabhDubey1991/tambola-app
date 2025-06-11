@@ -1,51 +1,19 @@
-
-import { useEffect, useState } from 'react';
-import io from 'socket.io-client';
+import { useState } from 'react';
 import './App.css';
 
-const socket = io('https://your-server-url.onrender.com');
-
 function App() {
-  const [calledNumbers, setCalledNumbers] = useState([]);
-  const [currentNumber, setCurrentNumber] = useState(null);
-
-  useEffect(() => {
-    socket.on('init', (data) => {
-      setCalledNumbers(data.calledNumbers);
-    });
-
-    socket.on('number-called', (number) => {
-      setCurrentNumber(number);
-      setCalledNumbers(prev => [...prev, number]);
-    });
-
-    return () => socket.disconnect();
-  }, []);
-
-  const handleCall = () => {
-    socket.emit('call-number');
-  };
+  const [number, setNumber] = useState(null);
 
   return (
-    <div className="app-container">
-      <h1>🎲 Tambola Number Caller</h1>
-
-      <button className="call-btn" onClick={handleCall}>Call Number</button>
-
-      {currentNumber && (
-        <div className="current-number animate-ping">{currentNumber}</div>
-      )}
-
-      <div className="grid-container">
-        {[...Array(90).keys()].map(n => (
-          <div
-            key={n + 1}
-            className={`number-box ${calledNumbers.includes(n + 1) ? 'called' : ''}`}
-          >
-            {n + 1}
-          </div>
-        ))}
-      </div>
+    <div className="text-center p-6 min-h-screen bg-gradient-to-br from-cyan-100 to-cyan-300">
+      <h1 className="text-4xl font-bold text-teal-800 mb-6">🚀 Tambola 2.0 - New UI</h1>
+      <button
+        className="bg-teal-600 text-white px-6 py-3 rounded-lg text-lg hover:bg-teal-700 transition"
+        onClick={() => setNumber(Math.ceil(Math.random() * 90))}
+      >
+        Call Number
+      </button>
+      {number && <div className="text-6xl mt-6 font-bold text-cyan-900">{number}</div>}
     </div>
   );
 }
