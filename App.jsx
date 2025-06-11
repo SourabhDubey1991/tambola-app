@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import io from 'socket.io-client';
-import './App.css'; // Ensure you import styles
+import './App.css';
 
 const socket = io('https://your-server-url.onrender.com');
 
@@ -26,17 +26,20 @@ function App() {
   };
 
   return (
-    <div className="container">
-      <h1>Tambola Caller</h1>
-      <button className="call-button" onClick={handleCall}>Call Number</button>
+    <div className="app-container">
+      <h1>🎲 Tambola Number Caller</h1>
+
+      <button className="call-btn" onClick={handleCall}>Call Number</button>
+
       {currentNumber && (
-        <div className="current-number">{currentNumber}</div>
+        <div className="current-number animate-ping">{currentNumber}</div>
       )}
-      <div className="number-grid">
+
+      <div className="grid-container">
         {[...Array(90).keys()].map(n => (
           <div
             key={n + 1}
-            className={`number-cell ${calledNumbers.includes(n + 1) ? 'called' : ''}`}
+            className={`number-box ${calledNumbers.includes(n + 1) ? 'called' : ''}`}
           >
             {n + 1}
           </div>
