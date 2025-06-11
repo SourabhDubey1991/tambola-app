@@ -1,45 +1,48 @@
-import React, { useState } from "react";
+import { useEffect, useState } from 'react';
+import io from 'socket.io-client';
 
-const generateTicket = () => {
-  const ticket = Array.from({ length: 3 }, () =>
-    Array(9).fill(null)
-  );
-  for (let row = 0; row < 3; row++) {
-    let numbers = Array.from({ length: 9 }, (_, i) => i);
-    let used = new Set();
-    while (used.size < 5) {
-      const col = numbers[Math.floor(Math.random() * numbers.length)];
-      if (!used.has(col)) {
-        used.add(col);
-        ticket[row][col] = Math.floor(Math.random() * 10 + col * 10 + 1);
-      }
-    }
-  }
-  return ticket;
-};
+const socket = io('https://your-server-url.onrender.com');
 
-const Ticket = ({ data }) => (
-  <div className="ticket">
-    {data.map((row, i) => (
-      <div key={i} className="row">
-        {row.map((num, j) => (
-          <div key={j} className="cell">
-            {num || ""}
+function App() {
+  const [calledNumbers, setCalledNumbers] = useState([]);
+  const [currentNumber, setCurrentNumber] = useState(null);
+
+  useEffect(() => {
+    socket.on('init', (data) => {
+      setCalledNumbers(data.calledNumbers);
+    });
+
+    socket.on('number-called', (number) => {
+      setCurrentNumber(number);
+      setCalledNumbers(prev => [...prev, number]);
+    });
+
+    return () => socket.disconnect();
+  }, []);
+
+  const handleCall = () => {
+    socket.emit('call-number');
+  };
+
+  return (
+    <div className="text-center p-6">
+      <h1 className="text-3xl font-bold mb-4">Tambola Caller</h1>
+      <button className="bg-blue-500 text-white px-4 py-2 rounded" onClick={handleCall}>
+        Call Number
+      </button>
+      {currentNumber && <div className="text-5xl mt-4">{currentNumber}</div>}
+      <div className="grid grid-cols-10 gap-2 mt-6">
+        {[...Array(90).keys()].map(n => (
+          <div
+            key={n + 1}
+            className={`p-2 rounded ${calledNumbers.includes(n + 1) ? 'bg-green-500 text-white' : 'bg-gray-200'}`}
+          >
+            {n + 1}
           </div>
         ))}
       </div>
-    ))}
-  </div>
-);
-
-export default function App() {
-  const [ticket, setTicket] = useState(generateTicket());
-
-  return (
-    <div className="app">
-      <h1>Tambola Ticket Generator</h1>
-      <Ticket data={ticket} />
-      <button onClick={() => setTicket(generateTicket())}>Generate New Ticket</button>
     </div>
   );
 }
+
+export default App;
